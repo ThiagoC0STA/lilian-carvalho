@@ -1,0 +1,98 @@
+"use client";
+
+import { useGSAP } from "@gsap/react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useRef } from "react";
+import { processSteps } from "./data";
+import { Step } from "./step";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const accentClasses = [
+  "text-white/10",
+  "text-white/15",
+  "text-white/20",
+  "text-white/25",
+];
+
+export function HorizontalTrack() {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<HTMLDivElement>(null);
+
+  useGSAP(
+    () => {
+      const container = containerRef.current;
+      const track = trackRef.current;
+      const progress = progressRef.current;
+      if (!container || !track || !progress) return;
+
+      const reducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)",
+      ).matches;
+      if (reducedMotion) return;
+
+      const totalWidth = track.scrollWidth - window.innerWidth;
+
+      const tween = gsap.to(track, {
+        x: -totalWidth,
+        ease: "none",
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          end: () => `+=${totalWidth}`,
+          pin: true,
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+        },
+      });
+
+      gsap.to(progress, {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          end: () => `+=${totalWidth}`,
+          scrub: 0.8,
+        },
+      });
+
+      return () => {
+        tween.kill();
+      };
+    },
+    { scope: containerRef },
+  );
+
+  return (
+    <div ref={containerRef} className="relative w-full">
+      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col bg-background">
+        <div className="relative h-px w-full bg-white/5">
+          <div
+            ref={progressRef}
+            className="absolute inset-y-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-violet-600 via-amber-500 to-transparent"
+          />
+        </div>
+
+        <div className="flex-1 flex items-center">
+          <div
+            ref={trackRef}
+            className="flex items-center gap-0 will-change-transform"
+          >
+            {processSteps.map((step, i) => (
+              <Step
+                key={step.number}
+                step={step}
+                accentClass={accentClasses[i]}
+              />
+            ))}
+            <div className="w-[20vw] shrink-0" aria-hidden="true" />
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
