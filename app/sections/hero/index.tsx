@@ -58,7 +58,12 @@ export function Hero() {
       const progress = Math.min(1, Math.max(0, -rect.top / total));
       scrollProgressRef.current = progress;
 
-      const next = progress > 0.15 && progress < 0.95;
+      // Card is sticky: once shown, it stays for the rest of the hero.
+      // Only hides if the user scrolls back up past the entry threshold
+      // (so the Lilian Carvalho copy can return). The sticky pin of the
+      // hero section naturally takes the card out of view when scrolling
+      // past the section — no upper threshold needed.
+      const next = progress > 0.15;
       if (next !== showCardRef.current) {
         showCardRef.current = next;
         setShowCard(next);
