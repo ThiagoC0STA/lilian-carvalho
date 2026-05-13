@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence }
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
+import { HeroStaticBg } from "./static-bg";
 
 const R3FScene = dynamic(() => import("./r3f-scene"), {
   ssr: false,
@@ -17,12 +18,11 @@ export function Hero() {
   const reducedMotion = useReducedMotion();
   const mobilePerformanceMode = useMobilePerformanceMode();
 
-  // Pause the R3F render loop once the hero scrolls out of view. R3F's Canvas
-  // defaults to frameloop="always" — without this, the WebGL scene keeps
-  // running at 60fps while the user reads the rest of the page, which is the
-  // single biggest mobile perf killer in this layout.
+  // Pause the R3F render loop once the hero scrolls out of view (desktop only;
+  // mobile uses a static fallback so there's no WebGL to pause).
   const [sceneActive, setSceneActive] = useState(true);
   useEffect(() => {
+    if (mobilePerformanceMode) return;
     const el = sectionRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
@@ -31,18 +31,31 @@ export function Hero() {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, []);
+  }, [mobilePerformanceMode]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end end"],
   });
 
-  // Main typography flies UP early in the scroll. Using unitless % keeps Motion
-  // on the GPU compositor path (translateY).
-  const copyOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const copyY = useTransform(scrollYProgress, [0, 0.3], ["0%", "-100%"]);
-  const copyScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
+  // Typography parallax — desktop only. On mobile we keep typography static
+  // (no per-frame scroll-driven transforms) so the only scroll listener cost
+  // is the showCard threshold check below.
+  const copyOpacity = useTransform(
+    scrollYProgress,
+    [0, 0.2],
+    mobilePerformanceMode ? [1, 1] : [1, 0],
+  );
+  const copyY = useTransform(
+    scrollYProgress,
+    [0, 0.3],
+    mobilePerformanceMode ? ["0%", "0%"] : ["0%", "-100%"],
+  );
+  const copyScale = useTransform(
+    scrollYProgress,
+    [0, 0.2],
+    mobilePerformanceMode ? [1, 1] : [1, 1.1],
+  );
 
   const [showCard, setShowCard] = useState(false);
 
@@ -67,9 +80,14 @@ export function Hero() {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-background">
 
-        {/* The 3D Scene Layer */}
+        {/* Background layer — R3F on desktop, static CSS gradient on mobile.
+            The R3F scene was the dominant mobile perf cost even with all the
+            tuning (still 30fps of matrix math + WebGL composite per frame).
+            Static CSS background = zero JS-per-frame, smooth native scroll. */}
         <div className="absolute inset-0" aria-hidden="true">
-          {!reducedMotion && (
+          {reducedMotion ? null : mobilePerformanceMode ? (
+            <HeroStaticBg />
+          ) : (
             <R3FScene
               scrollRef={scrollProgressRef}
               mobilePerformanceMode={mobilePerformanceMode}
