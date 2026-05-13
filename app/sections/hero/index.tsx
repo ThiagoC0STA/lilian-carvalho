@@ -33,11 +33,10 @@ export function Hero() {
     return () => io.disconnect();
   }, []);
 
-  // Card visibility — driven by scroll position. `hasShownCard` is what lets
-  // us trigger the "exit upward" CSS transition instead of just resetting to
-  // the "below + invisible" initial state when the user scrolls past it.
+  // Card visibility — driven by scroll position. Card always enters from
+  // below and leaves back below, so a single boolean is enough (no need to
+  // track "has been shown before" for an exit-upward variant).
   const [showCard, setShowCard] = useState(false);
-  const [hasShownCard, setHasShownCard] = useState(false);
 
   // Single rAF-throttled scroll listener that replaces the entire
   // useScroll + useTransform + useMotionValueEvent stack from motion/react:
@@ -62,12 +61,7 @@ export function Hero() {
       const next = progress > 0.15 && progress < 0.95;
       if (next !== showCardRef.current) {
         showCardRef.current = next;
-        if (next) {
-          setShowCard(true);
-          setHasShownCard(true);
-        } else {
-          setShowCard(false);
-        }
+        setShowCard(next);
       }
 
       const copy = copyRef.current;
@@ -155,11 +149,10 @@ export function Hero() {
           className={cn(
             "absolute inset-0 flex items-center justify-center z-40 px-6 pointer-events-none hero-card",
             showCard && "is-shown",
-            !showCard && hasShownCard && "is-exiting",
           )}
         >
           <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/95 sm:bg-neutral-950/60 sm:backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
-            <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-tighter">
+            <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-normal">
               A ARTE DA <span className="text-violet-400 italic font-light">PERFORMANCE.</span>
             </h2>
             <p className="text-neutral-300 text-sm sm:text-xl font-sans font-light tracking-wide max-w-2xl leading-relaxed">

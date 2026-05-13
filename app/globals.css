@@ -261,10 +261,9 @@ body {
 }
 
 /* Hero glassmorphism card — replaces `AnimatePresence` + `motion.div` with
-   class-toggled CSS transitions. Three logical states:
-     • default (never shown) → translated DOWN, invisible
-     • .is-shown             → at rest, visible
-     • .is-exiting           → translated UP, invisible (after being shown) */
+   class-toggled CSS transitions. Symmetric: always enters from below and
+   leaves back below, so scrolling up after dismissal feels natural (the
+   card doesn't drop from the top of the screen). */
 .hero-card {
   opacity: 0;
   transform: translateY(150px) scale(0.9);
@@ -276,10 +275,6 @@ body {
 .hero-card.is-shown {
   opacity: 1;
   transform: translateY(0) scale(1);
-}
-.hero-card.is-exiting {
-  opacity: 0;
-  transform: translateY(-150px) scale(1.1);
 }
 
 /* 3D tilt — driven by JS-set CSS variables, all interpolation on GPU */
