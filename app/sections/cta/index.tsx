@@ -1,57 +1,76 @@
 "use client";
 
-import { motion } from "motion/react";
+import { motion, useInView } from "motion/react";
+import { useRef } from "react";
 import { Mail, ArrowUpRight, MessageCircle } from "lucide-react";
+import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 export function Cta() {
+  const sectionRef = useRef<HTMLElement>(null);
+  // Only mount the infinite background animations while the section is on
+  // screen. Off-screen they would keep running rAF and burning mobile CPU.
+  const isInView = useInView(sectionRef, { margin: "0px 0px -10% 0px" });
+  const mobilePerformanceMode = useMobilePerformanceMode();
+
+  // Mobile: drop one drifting dot layer and most radar rings to keep the
+  // compositor under budget. Desktop keeps the full set.
+  const radarDelays = mobilePerformanceMode ? [0, 4] : [0, 2, 4, 6];
+
   return (
     <section
+      ref={sectionRef}
       id="contato"
       className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-neutral-950"
     >
-      {/* Layer 1: fine dot grid drifting forward — animated via transform (GPU) */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute -inset-16 pointer-events-none will-change-transform"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1.2px)",
-          backgroundSize: "44px 44px",
-        }}
-        animate={{ x: [0, -44], y: [0, 44] }}
-        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
-      />
+      {/* Layer 1: fine dot grid drifting forward — transform-only (GPU) */}
+      {isInView && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute -inset-16 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1.2px)",
+            backgroundSize: "44px 44px",
+          }}
+          animate={{ x: [0, -44], y: [0, 44] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+        />
+      )}
 
-      {/* Layer 2: bigger sparse dots drifting opposite direction — transform-based */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute -inset-32 pointer-events-none will-change-transform"
-        style={{
-          backgroundImage:
-            "radial-gradient(circle, rgba(255,255,255,0.05) 1.4px, transparent 1.6px)",
-          backgroundSize: "120px 120px",
-        }}
-        animate={{ x: [0, 120], y: [0, -120] }}
-        transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
-      />
+      {/* Layer 2: bigger sparse dots — desktop only (cuts a parallel rAF on mobile) */}
+      {isInView && !mobilePerformanceMode && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute -inset-32 pointer-events-none will-change-transform"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle, rgba(255,255,255,0.05) 1.4px, transparent 1.6px)",
+            backgroundSize: "120px 120px",
+          }}
+          animate={{ x: [0, 120], y: [0, -120] }}
+          transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
+        />
+      )}
 
       {/* Radar pulse rings expanding from center */}
-      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
-        {[0, 2, 4, 6].map((delay) => (
-          <motion.div
-            key={delay}
-            className="absolute h-[28vw] w-[28vw] sm:h-[20vw] sm:w-[20vw] rounded-full border border-white/15"
-            animate={{ scale: [0.2, 3.2], opacity: [0.35, 0] }}
-            transition={{
-              duration: 8,
-              delay,
-              repeat: Infinity,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-          />
-        ))}
-        <div className="h-1.5 w-1.5 rounded-full bg-white/40 shadow-[0_0_24px_rgba(255,255,255,0.4)]" />
-      </div>
+      {isInView && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+          {radarDelays.map((delay) => (
+            <motion.div
+              key={delay}
+              className="absolute h-[28vw] w-[28vw] sm:h-[20vw] sm:w-[20vw] rounded-full border border-white/15 will-change-transform"
+              animate={{ scale: [0.2, 3.2], opacity: [0.35, 0] }}
+              transition={{
+                duration: 8,
+                delay,
+                repeat: Infinity,
+                ease: [0.16, 1, 0.3, 1],
+              }}
+            />
+          ))}
+          <div className="h-1.5 w-1.5 rounded-full bg-white/40 shadow-[0_0_24px_rgba(255,255,255,0.4)]" />
+        </div>
+      )}
 
       {/* Vignette to anchor the content */}
       <div
@@ -63,13 +82,15 @@ export function Cta() {
         }}
       />
 
-      {/* Scan line drifting top → bottom */}
-      <motion.div
-        aria-hidden="true"
-        className="absolute inset-x-0 h-px bg-linear-to-r from-transparent via-white/12 to-transparent pointer-events-none"
-        animate={{ top: ["-2%", "102%"] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
-      />
+      {/* Scan line drifting top → bottom — translateY (transform-only), not `top` */}
+      {isInView && (
+        <motion.div
+          aria-hidden="true"
+          className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/12 to-transparent pointer-events-none will-change-transform"
+          animate={{ y: ["-2vh", "102vh"] }}
+          transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+        />
+      )}
 
       <div className="relative mx-auto max-w-6xl px-6 z-10 w-full flex flex-col items-center text-center">
 

@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from "motion/react";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
@@ -21,22 +21,34 @@ export function Hero() {
     offset: ["start start", "end end"],
   });
 
-  // Main Typography flies UP very fast early in the scroll
+  // Main typography flies UP early in the scroll. Using unitless % keeps Motion
+  // on the GPU compositor path (translateY) instead of forcing it to resolve
+  // vh on every frame.
   const copyOpacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
-  const copyY = useTransform(scrollYProgress, [0, 0.3], ["0vh", "-100vh"]);
+  const copyY = useTransform(scrollYProgress, [0, 0.3], ["0%", "-100%"]);
   const copyScale = useTransform(scrollYProgress, [0, 0.2], [1, 1.1]);
-  
-  const [showCard, setShowCard] = useState(false);
+
+  // Card transforms driven directly by scrollYProgress — replaces the previous
+  // setState + AnimatePresence pattern, which forced a React re-render of the
+  // whole Hero on every scroll frame (severe mobile jank with R3F running).
+  const cardOpacity = useTransform(
+    scrollYProgress,
+    [0.12, 0.18, 0.92, 0.98],
+    [0, 1, 1, 0],
+  );
+  const cardY = useTransform(
+    scrollYProgress,
+    [0.12, 0.18, 0.92, 0.98],
+    [150, 0, 0, -150],
+  );
+  const cardScale = useTransform(
+    scrollYProgress,
+    [0.12, 0.18, 0.92, 0.98],
+    [0.9, 1, 1, 1.1],
+  );
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     scrollProgressRef.current = latest;
-    
-    // Mount the card seamlessly right after the name leaves, and keep it until the next section arrives
-    if (latest > 0.15 && latest < 0.95) {
-      setShowCard(true);
-    } else {
-      setShowCard(false);
-    }
   });
 
   return (
@@ -47,7 +59,7 @@ export function Hero() {
       style={{ height: "180vh" }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-background">
-        
+
         {/* The 3D Scene Layer */}
         <div className="absolute inset-0" aria-hidden="true">
           {!reducedMotion && (
@@ -72,7 +84,7 @@ export function Hero() {
 
         {/* --- MAIN TYPOGRAPHY --- */}
         <motion.div
-          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center"
+          className="absolute inset-0 z-10 flex flex-col items-center justify-center px-6 text-center will-change-transform"
           style={{ opacity: copyOpacity, y: copyY, scale: copyScale }}
         >
           <motion.h1
@@ -99,49 +111,49 @@ export function Hero() {
           </motion.p>
         </motion.div>
 
-        {/* --- NEW ELEMENT: GLASSMORPHISM DATA CARD --- */}
-        <AnimatePresence>
-          {showCard && (
-            <motion.div
-              key="hero-card"
-              initial={{ opacity: 0, y: 150, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -150, scale: 1.1 }}
-              transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute inset-0 flex items-center justify-center z-40 px-6 pointer-events-none"
-            >
-              <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/85 sm:bg-neutral-950/60 backdrop-blur-md sm:backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
-                <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-tighter">
-                  A ARTE DA <span className="text-violet-400 italic font-light">PERFORMANCE.</span>
-                </h2>
-                <p className="text-neutral-300 text-sm sm:text-xl font-sans font-light tracking-wide max-w-2xl leading-relaxed">
-                  Não olho apenas para planilhas. Eu construo arquiteturas de dados que transformam tráfego em lucro líquido.
-                </p>
-                
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent my-8 sm:my-10" />
-                
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 w-full font-sans text-[10px] sm:text-sm font-medium uppercase tracking-widest text-neutral-400">
-                  <div>
-                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">ROI</span>
-                    Maximização
-                  </div>
-                  <div>
-                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">LTV</span>
-                    Retenção
-                  </div>
-                  <div>
-                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CPA</span>
-                    Otimização
-                  </div>
-                  <div>
-                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CRO</span>
-                    Conversão
-                  </div>
-                </div>
+        {/* --- GLASSMORPHISM DATA CARD ---
+            Permanently mounted; opacity gates visibility. On mobile we drop
+            backdrop-blur entirely (Safari/Android GPU killer) and rely on a
+            near-opaque background. */}
+        <motion.div
+          style={{
+            opacity: cardOpacity,
+            y: cardY,
+            scale: cardScale,
+            willChange: "transform, opacity",
+          }}
+          className="absolute inset-0 flex items-center justify-center z-40 px-6 pointer-events-none"
+        >
+          <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/95 sm:bg-neutral-950/60 sm:backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
+            <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-tighter">
+              A ARTE DA <span className="text-violet-400 italic font-light">PERFORMANCE.</span>
+            </h2>
+            <p className="text-neutral-300 text-sm sm:text-xl font-sans font-light tracking-wide max-w-2xl leading-relaxed">
+              Não olho apenas para planilhas. Eu construo arquiteturas de dados que transformam tráfego em lucro líquido.
+            </p>
+
+            <div className="w-full h-px bg-linear-to-r from-transparent via-violet-500/40 to-transparent my-8 sm:my-10" />
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 w-full font-sans text-[10px] sm:text-sm font-medium uppercase tracking-widest text-neutral-400">
+              <div>
+                <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">ROI</span>
+                Maximização
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <div>
+                <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">LTV</span>
+                Retenção
+              </div>
+              <div>
+                <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CPA</span>
+                Otimização
+              </div>
+              <div>
+                <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CRO</span>
+                Conversão
+              </div>
+            </div>
+          </div>
+        </motion.div>
 
       </div>
     </section>

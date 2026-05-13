@@ -18,9 +18,14 @@ interface R3FSceneProps {
 // 1. The Ocean of Data (Massive flowing particle topography)
 function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const count = mobilePerformanceMode ? 34 : 60;
-  const spacing = mobilePerformanceMode ? 2.4 : 1.8;
+  // Mobile: 22×22 = 484 instances (was 34×34 = 1156). ~58% fewer matrix
+  // updates per frame, which is the dominant CPU cost in this scene.
+  const count = mobilePerformanceMode ? 22 : 60;
+  const spacing = mobilePerformanceMode ? 3.4 : 1.8;
   const dummy = useMemo(() => new THREE.Object3D(), []);
+  // Skip every other frame on mobile — halves the JS work for matrix updates
+  // while keeping the wave visibly fluid (~30fps).
+  const frameSkip = useRef(0);
 
   // Set colors ONCE to prevent severe WebGL performance drops during scroll
   useEffect(() => {
@@ -31,11 +36,11 @@ function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: 
       for (let z = 0; z < count; z++) {
         const pX = (x - count / 2) * spacing;
         const pZ = (z - count / 2) * spacing;
-        
+
         // Static elegant gradient from center outwards
         const dist = Math.sqrt(pX * pX + pZ * pZ);
         const mixRatio = Math.max(0, Math.min(1, dist / 30));
-        
+
         tempColor.lerpColors(VIBRANT_VIOLET, DEEP_PURPLE, mixRatio);
         meshRef.current.setColorAt(i, tempColor);
         i++;
@@ -45,30 +50,34 @@ function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: 
       meshRef.current.instanceColor.needsUpdate = true;
     }
   }, [count, spacing]);
-  
+
   useFrame((state) => {
     if (!meshRef.current) return;
+    if (mobilePerformanceMode) {
+      frameSkip.current = (frameSkip.current + 1) % 2;
+      if (frameSkip.current !== 0) return;
+    }
     const time = state.clock.elapsedTime * 0.8;
     let i = 0;
-    
+
     for (let x = 0; x < count; x++) {
       for (let z = 0; z < count; z++) {
         const pX = (x - count / 2) * spacing;
         const pZ = (z - count / 2) * spacing;
-        
-        const y = 
-          Math.sin(pX * 0.08 + time) * 2.5 + 
+
+        const y =
+          Math.sin(pX * 0.08 + time) * 2.5 +
           Math.cos(pZ * 0.12 + time * 0.8) * 2.5 +
           Math.sin((pX + pZ) * 0.04 - time) * 1.5;
-        
-        dummy.position.set(pX, y - 4, pZ); 
-        
+
+        dummy.position.set(pX, y - 4, pZ);
+
         const scale = Math.max(0.1, (y + 5) * 0.18);
         dummy.scale.set(scale, scale, scale);
-        
+
         dummy.updateMatrix();
         meshRef.current.setMatrixAt(i, dummy.matrix);
-        
+
         i++;
       }
     }

@@ -8,10 +8,10 @@ interface StepProps {
 export function Step({ step }: StepProps) {
   return (
     <article className="relative w-[88vw] sm:w-[75vw] lg:w-[60vw] xl:w-[48vw] shrink-0 snap-center px-0 sm:px-8">
-      <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-neutral-950/40 backdrop-blur-xl p-6 sm:p-14 lg:p-20 h-[75vh] sm:h-[70vh] flex flex-col justify-between group transition-all duration-700 hover:bg-neutral-900/60 hover:border-violet-500/20">
-        
-        {/* Subtle, clean glow effect */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 group-hover:bg-violet-500/10 transition-colors duration-700 pointer-events-none" />
+      <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-neutral-950/90 sm:bg-neutral-950/40 sm:backdrop-blur-xl p-6 sm:p-14 lg:p-20 h-[75vh] sm:h-[70vh] flex flex-col justify-between group transition-all duration-700 hover:bg-neutral-900/60 hover:border-violet-500/20">
+
+        {/* Subtle glow — `blur-3xl` is a GPU killer on mobile, gate to ≥sm */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-violet-500/5 rounded-full sm:blur-3xl -translate-y-1/2 translate-x-1/3 group-hover:bg-violet-500/10 transition-colors duration-700 pointer-events-none" />
 
         <div className="relative z-10">
           <div className="flex items-start justify-between mb-6 sm:mb-8">

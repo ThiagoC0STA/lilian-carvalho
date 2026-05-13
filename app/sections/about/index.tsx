@@ -2,16 +2,36 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
+import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 export function About() {
+  const mobilePerformanceMode = useMobilePerformanceMode();
+
+  // Animating `filter: blur(...)` forces paint+composite work every frame —
+  // brutal on mobile GPUs. Strip the blur step on mobile and rely on
+  // opacity/transform only (still feels smooth with the long ease curve).
+  const imageInitial = mobilePerformanceMode
+    ? { opacity: 0, y: 60, scale: 0.95 }
+    : { opacity: 0, y: 60, scale: 0.95, filter: "blur(10px)" };
+  const imageWhileInView = mobilePerformanceMode
+    ? { opacity: 1, y: 0, scale: 1 }
+    : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" };
+
+  const copyInitial = mobilePerformanceMode
+    ? { opacity: 0, y: 40 }
+    : { opacity: 0, y: 40, filter: "blur(8px)" };
+  const copyWhileInView = mobilePerformanceMode
+    ? { opacity: 1, y: 0 }
+    : { opacity: 1, y: 0, filter: "blur(0px)" };
+
   return (
     <section id="sobre" className="relative w-full bg-background py-16 sm:py-32 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
-          
+
           <motion.div
-            initial={{ opacity: 0, y: 60, scale: 0.95, filter: "blur(10px)" }}
-            whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            initial={imageInitial}
+            whileInView={imageWhileInView}
             viewport={{ once: true, margin: "-15% 0px" }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
@@ -26,14 +46,14 @@ export function About() {
                 className="object-cover object-top"
                 sizes="(max-width: 1024px) 100vw, 50vw"
               />
-              
+
               <div className="absolute inset-0 ring-1 ring-inset ring-white/10 rounded-[2.5rem]" />
             </div>
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={copyInitial}
+            whileInView={copyWhileInView}
             viewport={{ once: true, margin: "-15% 0px" }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col justify-center"

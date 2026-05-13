@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
+import { motion, useInView, useMotionValue, useSpring, useTransform } from "motion/react";
 import { MouseEvent, useRef } from "react";
 import type { ServiceCard as ServiceCardType, ChartType } from "./data";
 import { cn } from "@/lib/cn";
@@ -8,6 +8,36 @@ import { useMediaQuery } from "@/lib/use-media-query";
 
 function useHasFineHover(): boolean {
   return useMediaQuery("(hover: hover) and (pointer: fine)");
+}
+
+function PulseChart() {
+  // Only mount the infinite rAF while on screen — off-screen, the radar
+  // animation would keep running and burning mobile CPU forever.
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { margin: "20% 0px" });
+
+  return (
+    <div
+      ref={ref}
+      className="absolute right-10 sm:right-16 bottom-10 h-16 w-16 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-center"
+    >
+      {inView && (
+        <>
+          <motion.div
+            className="absolute inset-0 rounded-full border-2 border-white"
+            animate={{ scale: [1, 2.5, 2.5], opacity: [1, 0, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
+          />
+          <motion.div
+            className="absolute inset-2 rounded-full border-2 border-white"
+            animate={{ scale: [1, 2, 2], opacity: [1, 0, 0] }}
+            transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
+          />
+        </>
+      )}
+      <div className="absolute inset-6 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.8)]" />
+    </div>
+  );
 }
 
 function MiniChart({ type }: { type: ChartType }) {
@@ -84,21 +114,7 @@ function MiniChart({ type }: { type: ChartType }) {
   }
 
   if (type === "pulse") {
-    return (
-      <div className="absolute right-10 sm:right-16 bottom-10 h-16 w-16 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-center">
-        <motion.div
-          className="absolute inset-0 rounded-full border-2 border-white"
-          animate={{ scale: [1, 2.5, 2.5], opacity: [1, 0, 0] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: "easeOut" }}
-        />
-        <motion.div
-          className="absolute inset-2 rounded-full border-2 border-white"
-          animate={{ scale: [1, 2, 2], opacity: [1, 0, 0] }}
-          transition={{ duration: 2.5, delay: 0.5, repeat: Infinity, ease: "easeOut" }}
-        />
-        <div className="absolute inset-6 rounded-full bg-white shadow-[0_0_20px_rgba(255,255,255,0.8)]" />
-      </div>
-    );
+    return <PulseChart />;
   }
 
   return null;
