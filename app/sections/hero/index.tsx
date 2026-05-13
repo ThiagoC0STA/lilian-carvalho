@@ -94,7 +94,8 @@ export function Hero() {
     <section
       ref={sectionRef}
       id="hero"
-      className="relative w-full h-[140vh] sm:h-[180vh]"
+      className="relative w-full"
+      style={{ height: mobilePerformanceMode ? "130vh" : "180vh" }}
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-background">
 
