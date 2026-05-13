@@ -2,6 +2,7 @@
 
 import { motion, useInView } from "motion/react";
 import { useRef } from "react";
+import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 interface RevealTextProps {
   text: string;
@@ -17,7 +18,16 @@ export function RevealText({
   staggerMs = 30,
 }: RevealTextProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const mobilePerformanceMode = useMobilePerformanceMode();
   const isInView = useInView(ref, { once: true, margin: "-15% 0px" });
+
+  if (mobilePerformanceMode) {
+    return (
+      <div ref={ref} className={className}>
+        {text}
+      </div>
+    );
+  }
 
   const words = text.split(/\s+/);
 

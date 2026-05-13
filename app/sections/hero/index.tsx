@@ -11,10 +11,85 @@ const R3FScene = dynamic(() => import("./r3f-scene"), {
 });
 
 export function Hero() {
-  const sectionRef = useRef<HTMLElement>(null);
-  const scrollProgressRef = useRef<number>(0);
   const reducedMotion = useReducedMotion();
   const mobilePerformanceMode = useMobilePerformanceMode();
+
+  if (mobilePerformanceMode) {
+    return <MobileHero reducedMotion={reducedMotion} />;
+  }
+
+  return <DesktopHero reducedMotion={reducedMotion} />;
+}
+
+function MobileHero({ reducedMotion }: { reducedMotion: boolean }) {
+  const scrollProgressRef = useRef<number>(0);
+
+  return (
+    <section
+      id="hero"
+      className="relative flex min-h-[100svh] w-full items-center overflow-hidden bg-background px-6 py-24 text-center"
+    >
+      <div className="absolute inset-0" aria-hidden="true">
+        {!reducedMotion && (
+          <R3FScene
+            scrollRef={scrollProgressRef}
+            mobilePerformanceMode
+          />
+        )}
+      </div>
+
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at 50% 42%, rgba(5,5,5,0.35) 0%, rgba(5,5,5,0.72) 58%, rgba(5,5,5,0.96) 100%)",
+        }}
+      />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-xl flex-col items-center">
+        <h1
+          className="font-serif uppercase font-bold text-foreground leading-[0.9] tracking-tighter"
+          style={{ fontSize: "clamp(3.75rem, 19vw, 6.5rem)" }}
+        >
+          Lilian
+          <br />
+          Carvalho
+        </h1>
+
+        <p className="mt-7 max-w-xs font-sans text-[11px] uppercase tracking-[0.28em] text-neutral-400">
+          Analista de Dados &bull; Performance &bull; Midia
+        </p>
+
+        <div className="mt-12 w-full rounded-3xl border border-violet-500/20 bg-neutral-950/90 p-6">
+          <h2 className="mb-5 font-serif text-3xl font-bold tracking-tighter text-white">
+            A ARTE DA <span className="font-light italic text-violet-400">PERFORMANCE.</span>
+          </h2>
+          <p className="mx-auto max-w-sm font-sans text-base font-light leading-relaxed tracking-wide text-neutral-300">
+            Nao olho apenas para planilhas. Eu construo arquiteturas de dados que transformam trafego em lucro liquido.
+          </p>
+
+          <div className="my-7 h-px w-full bg-gradient-to-r from-transparent via-violet-500/40 to-transparent" />
+
+          <div className="grid w-full grid-cols-2 gap-5 font-sans text-[10px] font-medium uppercase tracking-widest text-neutral-400">
+            {["ROI", "LTV", "CPA", "CRO"].map((label) => (
+              <div key={label}>
+                <span className="mb-1 block font-serif text-2xl font-bold text-white">
+                  {label}
+                </span>
+                {label === "ROI" ? "Maximizacao" : label === "LTV" ? "Retencao" : label === "CPA" ? "Otimizacao" : "Conversao"}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function DesktopHero({ reducedMotion }: { reducedMotion: boolean }) {
+  const sectionRef = useRef<HTMLElement>(null);
+  const scrollProgressRef = useRef<number>(0);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -53,7 +128,6 @@ export function Hero() {
           {!reducedMotion && (
             <R3FScene
               scrollRef={scrollProgressRef}
-              mobilePerformanceMode={mobilePerformanceMode}
             />
           )}
         </div>

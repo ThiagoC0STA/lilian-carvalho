@@ -29,7 +29,7 @@ export function Step({ step }: StepProps) {
             </span>
           </div>
 
-          <p className="font-sans text-sm sm:text-2xl text-neutral-400 font-light leading-relaxed max-w-2xl mb-6 sm:mb-12">
+          <p className="font-sans text-[17px] sm:text-2xl text-neutral-300 font-light leading-relaxed max-w-2xl mb-7 sm:mb-12">
             {step.description}
           </p>
         </div>
@@ -41,7 +41,7 @@ export function Step({ step }: StepProps) {
             {step.bullets.map((bullet, i) => (
               <li
                 key={bullet}
-                className="flex items-start gap-4 font-sans text-base text-neutral-300"
+                className="flex items-start gap-4 font-sans text-[15px] sm:text-base text-neutral-300"
               >
                 <span className="font-sans font-medium text-[10px] uppercase tracking-[0.3em] text-neutral-500 mt-1.5 shrink-0">
                   {String(i + 1).padStart(2, "0")}
