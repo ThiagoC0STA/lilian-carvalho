@@ -2,19 +2,16 @@
 
 import { motion } from "motion/react";
 import Image from "next/image";
-import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 export function About() {
-  const mobilePerformanceMode = useMobilePerformanceMode();
-
   return (
     <section id="sobre" className="relative w-full bg-background py-16 sm:py-32 overflow-hidden">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-24 items-center">
           
           <motion.div
-            initial={mobilePerformanceMode ? false : { opacity: 0, y: 60, scale: 0.95, filter: "blur(10px)" }}
-            whileInView={mobilePerformanceMode ? undefined : { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 60, scale: 0.95, filter: "blur(10px)" }}
+            whileInView={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-15% 0px" }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="relative"
@@ -35,8 +32,8 @@ export function About() {
           </motion.div>
 
           <motion.div
-            initial={mobilePerformanceMode ? false : { opacity: 0, y: 40, filter: "blur(8px)" }}
-            whileInView={mobilePerformanceMode ? undefined : { opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 40, filter: "blur(8px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true, margin: "-15% 0px" }}
             transition={{ duration: 1, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
             className="flex flex-col justify-center"
@@ -58,8 +55,8 @@ export function About() {
             </div>
 
             <motion.div 
-              initial={mobilePerformanceMode ? false : { opacity: 0, y: 20 }}
-              whileInView={mobilePerformanceMode ? undefined : { opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-15% 0px" }}
               transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
               className="mt-12 flex flex-wrap gap-3 sm:gap-4"

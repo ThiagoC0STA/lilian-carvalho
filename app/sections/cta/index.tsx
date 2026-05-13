@@ -2,11 +2,8 @@
 
 import { motion } from "motion/react";
 import { Mail, ArrowUpRight, MessageCircle } from "lucide-react";
-import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 export function Cta() {
-  const mobilePerformanceMode = useMobilePerformanceMode();
-
   return (
     <section
       id="contato"
@@ -15,7 +12,7 @@ export function Cta() {
       {/* Layer 1: fine dot grid drifting forward — animated via transform (GPU) */}
       <motion.div
         aria-hidden="true"
-        className="absolute -inset-16 hidden pointer-events-none will-change-transform sm:block"
+        className="absolute -inset-16 pointer-events-none will-change-transform"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1.2px)",
@@ -28,7 +25,7 @@ export function Cta() {
       {/* Layer 2: bigger sparse dots drifting opposite direction — transform-based */}
       <motion.div
         aria-hidden="true"
-        className="absolute -inset-32 hidden pointer-events-none will-change-transform sm:block"
+        className="absolute -inset-32 pointer-events-none will-change-transform"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(255,255,255,0.05) 1.4px, transparent 1.6px)",
@@ -43,7 +40,7 @@ export function Cta() {
         {[0, 2, 4, 6].map((delay) => (
           <motion.div
             key={delay}
-            className="absolute hidden h-[28vw] w-[28vw] rounded-full border border-white/15 sm:block sm:h-[20vw] sm:w-[20vw]"
+            className="absolute h-[28vw] w-[28vw] sm:h-[20vw] sm:w-[20vw] rounded-full border border-white/15"
             animate={{ scale: [0.2, 3.2], opacity: [0.35, 0] }}
             transition={{
               duration: 8,
@@ -69,7 +66,7 @@ export function Cta() {
       {/* Scan line drifting top → bottom */}
       <motion.div
         aria-hidden="true"
-        className="absolute inset-x-0 hidden h-px bg-linear-to-r from-transparent via-white/12 to-transparent pointer-events-none sm:block"
+        className="absolute inset-x-0 h-px bg-linear-to-r from-transparent via-white/12 to-transparent pointer-events-none"
         animate={{ top: ["-2%", "102%"] }}
         transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
       />
@@ -77,8 +74,8 @@ export function Cta() {
       <div className="relative mx-auto max-w-6xl px-6 z-10 w-full flex flex-col items-center text-center">
 
         <motion.h2
-          initial={mobilePerformanceMode ? false : { opacity: 0, y: 30 }}
-          whileInView={mobilePerformanceMode ? undefined : { opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15% 0px" }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="font-serif font-bold tracking-tight text-5xl sm:text-7xl lg:text-8xl text-white leading-[1.02] max-w-4xl"
@@ -89,8 +86,8 @@ export function Cta() {
         </motion.h2>
 
         <motion.div
-          initial={mobilePerformanceMode ? false : { opacity: 0, y: 20 }}
-          whileInView={mobilePerformanceMode ? undefined : { opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-15% 0px" }}
           transition={{
             duration: 0.8,
@@ -120,8 +117,8 @@ export function Cta() {
         </motion.div>
 
         <motion.div
-          initial={mobilePerformanceMode ? false : { opacity: 0 }}
-          whileInView={mobilePerformanceMode ? undefined : { opacity: 1 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true, margin: "-15% 0px" }}
           transition={{ duration: 0.8, delay: 0.6 }}
           className="flex flex-col items-center mt-16 gap-2"

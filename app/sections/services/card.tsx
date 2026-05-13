@@ -5,7 +5,6 @@ import { MouseEvent, useRef } from "react";
 import type { ServiceCard as ServiceCardType, ChartType } from "./data";
 import { cn } from "@/lib/cn";
 import { useMediaQuery } from "@/lib/use-media-query";
-import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 function useHasFineHover(): boolean {
   return useMediaQuery("(hover: hover) and (pointer: fine)");
@@ -111,48 +110,6 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ card, index }: ServiceCardProps) {
-  const mobilePerformanceMode = useMobilePerformanceMode();
-
-  if (mobilePerformanceMode) {
-    return <StaticServiceCard card={card} />;
-  }
-
-  return <AnimatedServiceCard card={card} index={index} />;
-}
-
-function StaticServiceCard({ card }: { card: ServiceCardType }) {
-  const Icon = card.icon;
-
-  return (
-    <div
-      className={cn(
-        "group relative overflow-hidden rounded-xl border border-violet-500/10 bg-neutral-900/40 p-6 h-full min-h-[300px]",
-        "shadow-[0_0_40px_rgba(139,92,246,0.05)]",
-      )}
-    >
-      <div className="relative z-10 flex h-full flex-col">
-        <div className="flex items-start justify-between mb-10">
-          <span className="font-sans font-medium text-[10px] uppercase tracking-[0.3em] text-neutral-500">
-            {card.number}
-          </span>
-          <Icon className="h-5 w-5 stroke-[1.5] text-neutral-400" />
-        </div>
-
-        <div className="mt-auto relative z-20">
-          <h3 className="font-sans font-bold tracking-tight text-2xl text-white leading-tight mb-3">
-            {card.title}
-          </h3>
-
-          <p className="font-sans text-[15px] text-neutral-400 font-light tracking-wide leading-relaxed max-w-[95%]">
-            {card.description}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AnimatedServiceCard({ card, index }: ServiceCardProps) {
   const ref = useRef<HTMLDivElement>(null);
   const hasHover = useHasFineHover();
 
