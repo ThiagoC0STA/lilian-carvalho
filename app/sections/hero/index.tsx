@@ -58,12 +58,20 @@ export function Hero() {
       const progress = Math.min(1, Math.max(0, -rect.top / total));
       scrollProgressRef.current = progress;
 
+      // Mobile has a shorter section (130vh vs desktop 180vh), so the same
+      // progress windows feel ~3× faster as actual scroll. Stretch the
+      // typography fade/slide and push the card threshold later so the
+      // pacing reads smooth instead of whoosh.
+      const fadeEnd = mobilePerformanceMode ? 0.55 : 0.2;
+      const slideEnd = mobilePerformanceMode ? 0.65 : 0.3;
+      const cardStart = mobilePerformanceMode ? 0.5 : 0.15;
+
       // Card is sticky: once shown, it stays for the rest of the hero.
       // Only hides if the user scrolls back up past the entry threshold
       // (so the Lilian Carvalho copy can return). The sticky pin of the
       // hero section naturally takes the card out of view when scrolling
       // past the section — no upper threshold needed.
-      const next = progress > 0.15;
+      const next = progress > cardStart;
       if (next !== showCardRef.current) {
         showCardRef.current = next;
         setShowCard(next);
@@ -71,9 +79,9 @@ export function Hero() {
 
       const copy = copyRef.current;
       if (copy) {
-        const opacity = progress < 0.2 ? 1 - progress / 0.2 : 0;
-        const yPct = progress < 0.3 ? -(progress / 0.3) * 100 : -100;
-        const scale = progress < 0.2 ? 1 + (progress / 0.2) * 0.1 : 1.1;
+        const opacity = progress < fadeEnd ? 1 - progress / fadeEnd : 0;
+        const yPct = progress < slideEnd ? -(progress / slideEnd) * 100 : -100;
+        const scale = progress < fadeEnd ? 1 + (progress / fadeEnd) * 0.1 : 1.1;
         copy.style.setProperty("--copy-opacity", String(opacity));
         copy.style.setProperty("--copy-y", `${yPct}%`);
         copy.style.setProperty("--copy-scale", String(scale));
