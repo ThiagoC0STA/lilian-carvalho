@@ -4,7 +4,6 @@ import { useEffect, useRef, useState } from "react";
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
 import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
-import { HeroStaticBg } from "./static-bg";
 import { cn } from "@/lib/cn";
 
 const R3FScene = dynamic(() => import("./r3f-scene"), {
@@ -19,11 +18,11 @@ export function Hero() {
   const reducedMotion = useReducedMotion();
   const mobilePerformanceMode = useMobilePerformanceMode();
 
-  // Pause the R3F render loop once the hero scrolls out of view (desktop only;
-  // mobile uses a static fallback so there's no WebGL to pause).
+  // Pause the R3F render loop once the hero scrolls out of view — same on
+  // mobile and desktop now that mobile also runs the R3F scene (tuned via
+  // `mobilePerformanceMode`).
   const [sceneActive, setSceneActive] = useState(true);
   useEffect(() => {
-    if (mobilePerformanceMode) return;
     const el = sectionRef.current;
     if (!el || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
@@ -32,7 +31,7 @@ export function Hero() {
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [mobilePerformanceMode]);
+  }, []);
 
   // Card visibility — driven by scroll position. `hasShownCard` is what lets
   // us trigger the "exit upward" CSS transition instead of just resetting to
@@ -71,16 +70,14 @@ export function Hero() {
         }
       }
 
-      if (!mobilePerformanceMode) {
-        const copy = copyRef.current;
-        if (copy) {
-          const opacity = progress < 0.2 ? 1 - progress / 0.2 : 0;
-          const yPct = progress < 0.3 ? -(progress / 0.3) * 100 : -100;
-          const scale = progress < 0.2 ? 1 + (progress / 0.2) * 0.1 : 1.1;
-          copy.style.setProperty("--copy-opacity", String(opacity));
-          copy.style.setProperty("--copy-y", `${yPct}%`);
-          copy.style.setProperty("--copy-scale", String(scale));
-        }
+      const copy = copyRef.current;
+      if (copy) {
+        const opacity = progress < 0.2 ? 1 - progress / 0.2 : 0;
+        const yPct = progress < 0.3 ? -(progress / 0.3) * 100 : -100;
+        const scale = progress < 0.2 ? 1 + (progress / 0.2) * 0.1 : 1.1;
+        copy.style.setProperty("--copy-opacity", String(opacity));
+        copy.style.setProperty("--copy-y", `${yPct}%`);
+        copy.style.setProperty("--copy-scale", String(scale));
       }
     };
 
@@ -108,11 +105,11 @@ export function Hero() {
     >
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-background">
 
-        {/* Background layer — R3F on desktop, static CSS gradient on mobile. */}
+        {/* Background layer — R3F on every viewport. The scene tunes its
+            instance count and frame-skip via `mobilePerformanceMode` so it
+            stays affordable on touch devices without changing the look. */}
         <div className="absolute inset-0" aria-hidden="true">
-          {reducedMotion ? null : mobilePerformanceMode ? (
-            <HeroStaticBg />
-          ) : (
+          {reducedMotion ? null : (
             <R3FScene
               scrollRef={scrollProgressRef}
               mobilePerformanceMode={mobilePerformanceMode}

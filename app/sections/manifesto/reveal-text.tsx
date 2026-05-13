@@ -13,6 +13,10 @@ interface RevealTextProps {
 // Word-by-word reveal driven entirely by CSS — the per-word stagger comes
 // from the `--i` CSS variable on each <span>, and the transition kicks in
 // when `.is-visible` is toggled on the wrapper by `useRevealOnScroll`.
+//
+// The non-breaking space lives OUTSIDE the animated inner span so the gap
+// between words is always rendered, even while the words themselves are
+// still at opacity 0 / translated down inside their overflow-hidden mask.
 export function RevealText({
   text,
   className,
@@ -46,8 +50,8 @@ export function RevealText({
             style={{ "--i": i } as React.CSSProperties}
           >
             {word}
-            {i < words.length - 1 ? " " : ""}
           </span>
+          {i < words.length - 1 ? " " : ""}
         </span>
       ))}
     </div>

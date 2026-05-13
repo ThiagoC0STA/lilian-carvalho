@@ -19,15 +19,13 @@ interface R3FSceneProps {
 // 1. The Ocean of Data (Massive flowing particle topography)
 function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  // Mobile: 16×16 = 256 instances (was 34×34 = 1156). ~78% fewer matrix
-  // updates per frame — combined with frame-skipping below this drops CPU
-  // cost of the wave update to roughly an eighth of the original.
-  const count = mobilePerformanceMode ? 16 : 60;
-  const spacing = mobilePerformanceMode ? 4.6 : 1.8;
+  // Mobile: 40×40 = 1600 instances (vs 60×60 = 3600 on desktop). Density and
+  // spacing stay identical to desktop so the wave reads as the same shape,
+  // just covering a smaller area — "a mesma coisa só menor". No frame skip,
+  // no spacing tricks — those changed the look, not just the cost.
+  const count = mobilePerformanceMode ? 40 : 60;
+  const spacing = 1.8;
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  // Skip every other frame on mobile — halves the JS work for matrix updates
-  // while keeping the wave visibly fluid (~30fps).
-  const frameSkip = useRef(0);
 
   // Set colors ONCE to prevent severe WebGL performance drops during scroll
   useEffect(() => {
@@ -55,10 +53,6 @@ function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: 
 
   useFrame((state) => {
     if (!meshRef.current) return;
-    if (mobilePerformanceMode) {
-      frameSkip.current = (frameSkip.current + 1) % 2;
-      if (frameSkip.current !== 0) return;
-    }
     const time = state.clock.elapsedTime * 0.8;
     let i = 0;
 
@@ -89,13 +83,13 @@ function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: 
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count * count]}>
       <boxGeometry args={[0.9, 1.2, 0.9]} />
-      <meshStandardMaterial emissiveIntensity={mobilePerformanceMode ? 1.1 : 1.5} roughness={0.2} metalness={0.8} />
+      <meshStandardMaterial emissiveIntensity={1.5} roughness={0.2} metalness={0.8} />
     </instancedMesh>
   );
 }
 
 // Dynamic Cinematic Camera
-function CameraRig({ scrollRef, mobilePerformanceMode = false }: { scrollRef: RefObject<number>; mobilePerformanceMode?: boolean }) {
+function CameraRig({ scrollRef }: { scrollRef: RefObject<number> }) {
   const { camera } = useThree();
   const targetPos = useMemo(() => new THREE.Vector3(), []);
 
@@ -103,10 +97,9 @@ function CameraRig({ scrollRef, mobilePerformanceMode = false }: { scrollRef: Re
     const t = THREE.MathUtils.clamp(scrollRef.current ?? 0, 0, 1);
     const easeT = THREE.MathUtils.smoothstep(t, 0, 1);
 
-    // Idle camera sway: disabled on mobile so the scene only redraws on
-    // actual scroll/wave activity (no perpetual sub-pixel camera drift).
-    const idleX = mobilePerformanceMode ? 0 : Math.sin(state.clock.elapsedTime * 0.1) * 2;
-    const idleY = mobilePerformanceMode ? 0 : Math.cos(state.clock.elapsedTime * 0.08) * 1;
+    // Idle camera sway — identical on mobile and desktop.
+    const idleX = Math.sin(state.clock.elapsedTime * 0.1) * 2;
+    const idleY = Math.cos(state.clock.elapsedTime * 0.08) * 1;
 
     // Start: Look at full wide scene
     const startX = idleX;
@@ -137,7 +130,7 @@ export default function R3FScene({ scrollRef, mobilePerformanceMode = false, act
       // frameloop="never" fully halts the WebGL render + useFrame ticks once
       // the hero is off-screen. Resumes automatically when it scrolls back.
       frameloop={active ? "always" : "never"}
-      dpr={mobilePerformanceMode ? [1, 1] : [1, 1.5]}
+      dpr={[1, 1.5]}
       gl={{
         antialias: false,
         alpha: false,
@@ -155,17 +148,15 @@ export default function R3FScene({ scrollRef, mobilePerformanceMode = false, act
       
       <DataOcean mobilePerformanceMode={mobilePerformanceMode} />
 
-      <CameraRig scrollRef={scrollRef} mobilePerformanceMode={mobilePerformanceMode} />
-      
-      {!mobilePerformanceMode && (
-        <EffectComposer>
-          <Bloom
-            luminanceThreshold={0.2}
-            mipmapBlur
-            intensity={1.5}
-          />
-        </EffectComposer>
-      )}
+      <CameraRig scrollRef={scrollRef} />
+
+      <EffectComposer>
+        <Bloom
+          luminanceThreshold={0.2}
+          mipmapBlur
+          intensity={1.5}
+        />
+      </EffectComposer>
     </Canvas>
   );
 }
