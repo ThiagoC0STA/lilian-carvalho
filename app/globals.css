@@ -80,6 +80,112 @@ body {
   animation: marquee-x-reverse var(--marquee-duration, 50s) linear infinite;
 }
 
+/* === Vanilla reveal-on-scroll utilities ===
+   Drives entry animations for Services and Segments cards with zero JS
+   animation library overhead. Toggled by the `.is-visible` class added
+   once by useRevealOnScroll when the element intersects the viewport. */
+
+.reveal-up {
+  opacity: 0;
+  transform: translateY(30px);
+  transition:
+    opacity 0.7s var(--ease-out-expo),
+    transform 0.7s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-up.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-up-sm {
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo);
+  transition-delay: var(--reveal-delay, 0ms);
+  will-change: opacity, transform;
+}
+.reveal-up-sm.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* MiniChart primitives — apply inside `.is-visible` ancestor. */
+
+.chart-bar {
+  height: 0;
+  transition: height 1s var(--ease-out-expo);
+  transition-delay: var(--chart-delay, 0ms);
+  will-change: height;
+}
+.is-visible .chart-bar {
+  height: var(--bar-height, 50%);
+}
+
+.chart-scale {
+  transform: scale(0);
+  transition: transform 0.5s var(--ease-out-expo);
+  transition-delay: var(--chart-delay, 0ms);
+  transform-origin: center;
+  will-change: transform;
+}
+.is-visible .chart-scale {
+  transform: scale(1);
+}
+
+.chart-fadeup {
+  opacity: 0;
+  transform: translateY(50px);
+  transition:
+    opacity 0.5s var(--ease-out-expo),
+    transform 0.5s var(--ease-out-expo);
+  transition-delay: var(--chart-delay, 0ms);
+  will-change: opacity, transform;
+}
+.is-visible .chart-fadeup {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* SVG path draw-in via stroke-dasharray trick. The path's path-length is
+   normalized to 1 via `pathLength="1"` so dash values stay simple. */
+.chart-draw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  transition: stroke-dashoffset 1.5s ease-in-out;
+  transition-delay: var(--chart-delay, 0ms);
+}
+.is-visible .chart-draw {
+  stroke-dashoffset: 0;
+}
+
+/* Pulse rings — pure CSS keyframes, paused until parent is `.is-visible` */
+@keyframes radar-pulse {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+.pulse-ring {
+  animation: radar-pulse 2.5s ease-out infinite;
+  animation-play-state: paused;
+}
+.pulse-ring-delay {
+  animation-delay: 1.25s;
+}
+.is-visible .pulse-ring {
+  animation-play-state: running;
+}
+
+/* 3D tilt — driven by JS-set CSS variables, all interpolation on GPU */
+.tilt-card {
+  transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.3s var(--ease-out-expo);
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
