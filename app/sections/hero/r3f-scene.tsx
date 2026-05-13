@@ -13,15 +13,17 @@ const DARK_BG = new THREE.Color("#0a0514"); // Very dark purple background
 interface R3FSceneProps {
   scrollRef: RefObject<number>;
   mobilePerformanceMode?: boolean;
+  active?: boolean;
 }
 
 // 1. The Ocean of Data (Massive flowing particle topography)
 function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  // Mobile: 22×22 = 484 instances (was 34×34 = 1156). ~58% fewer matrix
-  // updates per frame, which is the dominant CPU cost in this scene.
-  const count = mobilePerformanceMode ? 22 : 60;
-  const spacing = mobilePerformanceMode ? 3.4 : 1.8;
+  // Mobile: 16×16 = 256 instances (was 34×34 = 1156). ~78% fewer matrix
+  // updates per frame — combined with frame-skipping below this drops CPU
+  // cost of the wave update to roughly an eighth of the original.
+  const count = mobilePerformanceMode ? 16 : 60;
+  const spacing = mobilePerformanceMode ? 4.6 : 1.8;
   const dummy = useMemo(() => new THREE.Object3D(), []);
   // Skip every other frame on mobile — halves the JS work for matrix updates
   // while keeping the wave visibly fluid (~30fps).
@@ -93,22 +95,24 @@ function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: 
 }
 
 // Dynamic Cinematic Camera
-function CameraRig({ scrollRef }: { scrollRef: RefObject<number> }) {
+function CameraRig({ scrollRef, mobilePerformanceMode = false }: { scrollRef: RefObject<number>; mobilePerformanceMode?: boolean }) {
   const { camera } = useThree();
   const targetPos = useMemo(() => new THREE.Vector3(), []);
 
   useFrame((state) => {
     const t = THREE.MathUtils.clamp(scrollRef.current ?? 0, 0, 1);
     const easeT = THREE.MathUtils.smoothstep(t, 0, 1);
-    
-    const idleX = Math.sin(state.clock.elapsedTime * 0.1) * 2;
-    const idleY = Math.cos(state.clock.elapsedTime * 0.08) * 1;
-    
+
+    // Idle camera sway: disabled on mobile so the scene only redraws on
+    // actual scroll/wave activity (no perpetual sub-pixel camera drift).
+    const idleX = mobilePerformanceMode ? 0 : Math.sin(state.clock.elapsedTime * 0.1) * 2;
+    const idleY = mobilePerformanceMode ? 0 : Math.cos(state.clock.elapsedTime * 0.08) * 1;
+
     // Start: Look at full wide scene
     const startX = idleX;
     const startY = 4 + idleY;
     const startZ = 28;
-    
+
     // End: Slightly pushed in to emphasize data ocean without losing graphs
     const endX = idleX * 0.5;
     const endY = 2 + idleY * 0.5;
@@ -127,9 +131,12 @@ function CameraRig({ scrollRef }: { scrollRef: RefObject<number> }) {
   return null;
 }
 
-export default function R3FScene({ scrollRef, mobilePerformanceMode = false }: R3FSceneProps) {
+export default function R3FScene({ scrollRef, mobilePerformanceMode = false, active = true }: R3FSceneProps) {
   return (
     <Canvas
+      // frameloop="never" fully halts the WebGL render + useFrame ticks once
+      // the hero is off-screen. Resumes automatically when it scrolls back.
+      frameloop={active ? "always" : "never"}
       dpr={mobilePerformanceMode ? [1, 1] : [1, 1.5]}
       gl={{
         antialias: false,
@@ -147,8 +154,8 @@ export default function R3FScene({ scrollRef, mobilePerformanceMode = false }: R
       <pointLight position={[-10, 10, -10]} intensity={3} color={DEEP_PURPLE} />
       
       <DataOcean mobilePerformanceMode={mobilePerformanceMode} />
-      
-      <CameraRig scrollRef={scrollRef} />
+
+      <CameraRig scrollRef={scrollRef} mobilePerformanceMode={mobilePerformanceMode} />
       
       {!mobilePerformanceMode && (
         <EffectComposer>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent } from "motion/react";
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
@@ -15,6 +15,22 @@ export function Hero() {
   const scrollProgressRef = useRef<number>(0);
   const reducedMotion = useReducedMotion();
   const mobilePerformanceMode = useMobilePerformanceMode();
+
+  // Pause the R3F render loop once the hero scrolls out of view. R3F's Canvas
+  // defaults to frameloop="always" — without this, the WebGL scene keeps
+  // running at 60fps while the user reads the rest of the page, which is the
+  // single biggest mobile perf killer in this layout.
+  const [sceneActive, setSceneActive] = useState(true);
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      ([entry]) => setSceneActive(entry.isIntersecting),
+      { rootMargin: "200px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -66,6 +82,7 @@ export function Hero() {
             <R3FScene
               scrollRef={scrollProgressRef}
               mobilePerformanceMode={mobilePerformanceMode}
+              active={sceneActive}
             />
           )}
         </div>

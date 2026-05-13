@@ -41,7 +41,7 @@ export function Marquee({
           return (
             <div
               key={`${item.name}-${i}`}
-              className="flex items-center gap-4 rounded-xl border border-white/5 bg-neutral-900/40 px-6 py-4 backdrop-blur-sm transition-colors hover:bg-neutral-800/60 hover:border-white/10"
+              className="flex items-center gap-4 rounded-xl border border-white/5 bg-neutral-900/60 px-6 py-4 sm:bg-neutral-900/40 sm:backdrop-blur-sm transition-colors hover:bg-neutral-800/60 hover:border-white/10"
             >
               <Icon className={cn("w-6 h-6", item.color)} />
               <span className="font-sans font-medium text-lg text-white whitespace-nowrap tracking-wide">
