@@ -9,29 +9,29 @@ export function Cta() {
       id="contato"
       className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-neutral-950"
     >
-      {/* Layer 1: fine dot grid drifting forward */}
+      {/* Layer 1: fine dot grid drifting forward — animated via transform (GPU) */}
       <motion.div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none will-change-[background-position]"
+        className="absolute -inset-16 pointer-events-none will-change-transform"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1.2px)",
           backgroundSize: "44px 44px",
         }}
-        animate={{ backgroundPosition: ["0px 0px", "44px 44px"] }}
+        animate={{ x: [0, -44], y: [0, 44] }}
         transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
       />
 
-      {/* Layer 2: bigger sparse dots drifting opposite direction for parallax depth */}
+      {/* Layer 2: bigger sparse dots drifting opposite direction — transform-based */}
       <motion.div
         aria-hidden="true"
-        className="absolute inset-0 pointer-events-none will-change-[background-position]"
+        className="absolute -inset-32 pointer-events-none will-change-transform"
         style={{
           backgroundImage:
             "radial-gradient(circle, rgba(255,255,255,0.05) 1.4px, transparent 1.6px)",
           backgroundSize: "120px 120px",
         }}
-        animate={{ backgroundPosition: ["0px 0px", "-120px 120px"] }}
+        animate={{ x: [0, 120], y: [0, -120] }}
         transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
       />
 

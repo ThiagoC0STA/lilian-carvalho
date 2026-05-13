@@ -103,7 +103,7 @@ export function Hero() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 flex items-center justify-center z-40 px-6 pointer-events-none"
             >
-              <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/60 backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
+              <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/85 sm:bg-neutral-950/60 backdrop-blur-md sm:backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
                 <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-tighter">
                   A ARTE DA <span className="text-violet-400 italic font-light">PERFORMANCE.</span>
                 </h2>

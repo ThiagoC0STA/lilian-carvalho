@@ -18,8 +18,12 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
 
-    if (prefersReducedMotion) {
+    // On touch devices, native momentum scroll is faster and smoother than
+    // Lenis can ever be — Lenis intercepts touch events and fights iOS/Android
+    // momentum, which creates the exact opposite of smooth.
+    if (prefersReducedMotion || isTouchDevice) {
       return;
     }
 
@@ -28,7 +32,10 @@ export function SmoothScroll({ children }: SmoothScrollProps) {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 1.5,
+      anchors: {
+        duration: 1.2,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      },
     });
 
     const onLenisScroll = () => {
