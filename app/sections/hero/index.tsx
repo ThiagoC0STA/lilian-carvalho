@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from "motion/react";
 import dynamic from "next/dynamic";
 import { useReducedMotion } from "@/lib/use-reduced-motion";
+import { useMobilePerformanceMode } from "@/lib/use-mobile-performance-mode";
 
 const R3FScene = dynamic(() => import("./r3f-scene"), {
   ssr: false,
@@ -13,6 +14,7 @@ export function Hero() {
   const sectionRef = useRef<HTMLElement>(null);
   const scrollProgressRef = useRef<number>(0);
   const reducedMotion = useReducedMotion();
+  const mobilePerformanceMode = useMobilePerformanceMode();
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -48,7 +50,12 @@ export function Hero() {
         
         {/* The 3D Scene Layer */}
         <div className="absolute inset-0" aria-hidden="true">
-          {!reducedMotion && <R3FScene scrollRef={scrollProgressRef} />}
+          {!reducedMotion && (
+            <R3FScene
+              scrollRef={scrollProgressRef}
+              mobilePerformanceMode={mobilePerformanceMode}
+            />
+          )}
         </div>
 
 

@@ -2,7 +2,7 @@
 
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { EffectComposer, Bloom } from "@react-three/postprocessing";
-import { useMemo, useRef, useState, useEffect, type RefObject } from "react";
+import { useMemo, useRef, useEffect, type RefObject } from "react";
 import * as THREE from "three";
 
 const DEEP_PURPLE = new THREE.Color("#2e1065"); // violet-950
@@ -12,12 +12,14 @@ const DARK_BG = new THREE.Color("#0a0514"); // Very dark purple background
 
 interface R3FSceneProps {
   scrollRef: RefObject<number>;
+  mobilePerformanceMode?: boolean;
 }
 
 // 1. The Ocean of Data (Massive flowing particle topography)
-function DataOcean() {
+function DataOcean({ mobilePerformanceMode = false }: { mobilePerformanceMode?: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const count = 60; // 60x60 = 3600 particles
+  const count = mobilePerformanceMode ? 34 : 60;
+  const spacing = mobilePerformanceMode ? 2.4 : 1.8;
   const dummy = useMemo(() => new THREE.Object3D(), []);
 
   // Set colors ONCE to prevent severe WebGL performance drops during scroll
@@ -27,8 +29,8 @@ function DataOcean() {
     let i = 0;
     for (let x = 0; x < count; x++) {
       for (let z = 0; z < count; z++) {
-        const pX = (x - count / 2) * 1.8;
-        const pZ = (z - count / 2) * 1.8;
+        const pX = (x - count / 2) * spacing;
+        const pZ = (z - count / 2) * spacing;
         
         // Static elegant gradient from center outwards
         const dist = Math.sqrt(pX * pX + pZ * pZ);
@@ -42,7 +44,7 @@ function DataOcean() {
     if (meshRef.current.instanceColor) {
       meshRef.current.instanceColor.needsUpdate = true;
     }
-  }, []);
+  }, [count, spacing]);
   
   useFrame((state) => {
     if (!meshRef.current) return;
@@ -51,8 +53,8 @@ function DataOcean() {
     
     for (let x = 0; x < count; x++) {
       for (let z = 0; z < count; z++) {
-        const pX = (x - count / 2) * 1.8;
-        const pZ = (z - count / 2) * 1.8;
+        const pX = (x - count / 2) * spacing;
+        const pZ = (z - count / 2) * spacing;
         
         const y = 
           Math.sin(pX * 0.08 + time) * 2.5 + 
@@ -76,7 +78,7 @@ function DataOcean() {
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, count * count]}>
       <boxGeometry args={[0.9, 1.2, 0.9]} />
-      <meshStandardMaterial emissiveIntensity={1.5} roughness={0.2} metalness={0.8} />
+      <meshStandardMaterial emissiveIntensity={mobilePerformanceMode ? 1.1 : 1.5} roughness={0.2} metalness={0.8} />
     </instancedMesh>
   );
 }
@@ -116,10 +118,10 @@ function CameraRig({ scrollRef }: { scrollRef: RefObject<number> }) {
   return null;
 }
 
-export default function R3FScene({ scrollRef }: R3FSceneProps) {
+export default function R3FScene({ scrollRef, mobilePerformanceMode = false }: R3FSceneProps) {
   return (
     <Canvas
-      dpr={[1, 1.5]}
+      dpr={mobilePerformanceMode ? [1, 1] : [1, 1.5]}
       gl={{
         antialias: false,
         alpha: false,
@@ -135,17 +137,19 @@ export default function R3FScene({ scrollRef }: R3FSceneProps) {
       <directionalLight position={[10, 20, 10]} intensity={1.5} color={HIGHLIGHT} />
       <pointLight position={[-10, 10, -10]} intensity={3} color={DEEP_PURPLE} />
       
-      <DataOcean />
+      <DataOcean mobilePerformanceMode={mobilePerformanceMode} />
       
       <CameraRig scrollRef={scrollRef} />
       
-      <EffectComposer>
-        <Bloom 
-          luminanceThreshold={0.2} 
-          mipmapBlur 
-          intensity={1.5} 
-        />
-      </EffectComposer>
+      {!mobilePerformanceMode && (
+        <EffectComposer>
+          <Bloom
+            luminanceThreshold={0.2}
+            mipmapBlur
+            intensity={1.5}
+          />
+        </EffectComposer>
+      )}
     </Canvas>
   );
 }

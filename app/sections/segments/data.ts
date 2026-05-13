@@ -3,11 +3,8 @@ import {
   ShoppingBag,
   Stethoscope,
   Scissors,
-  Coffee,
-  Store,
   Diamond,
   Laptop,
-  Briefcase,
   type LucideIcon,
 } from "lucide-react";
 

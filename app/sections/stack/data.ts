@@ -18,12 +18,13 @@ import {
   Box,
   Fingerprint,
   Table,
-  BookOpen
+  BookOpen,
+  type LucideIcon,
 } from "lucide-react";
 
 export interface StackItem {
   name: string;
-  icon: any;
+  icon: LucideIcon;
   color: string;
 }
 

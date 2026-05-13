@@ -3,12 +3,11 @@ import { cn } from "@/lib/cn";
 
 interface StepProps {
   step: ProcessStep;
-  accentClass: string;
 }
 
-export function Step({ step, accentClass }: StepProps) {
+export function Step({ step }: StepProps) {
   return (
-    <article className="relative w-[95vw] sm:w-[75vw] lg:w-[60vw] xl:w-[48vw] shrink-0 px-2 sm:px-8">
+    <article className="relative w-[88vw] sm:w-[75vw] lg:w-[60vw] xl:w-[48vw] shrink-0 snap-center px-0 sm:px-8">
       <div className="relative overflow-hidden rounded-3xl border border-white/5 bg-neutral-950/40 backdrop-blur-xl p-6 sm:p-14 lg:p-20 h-[75vh] sm:h-[70vh] flex flex-col justify-between group transition-all duration-700 hover:bg-neutral-900/60 hover:border-violet-500/20">
         
         {/* Subtle, clean glow effect */}

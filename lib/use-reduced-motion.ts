@@ -1,21 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useMediaQuery } from "./use-media-query";
 
 export function useReducedMotion(): boolean {
-  const [reduced, setReduced] = useState<boolean>(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    setReduced(query.matches);
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      setReduced(event.matches);
-    };
-
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
-  }, []);
-
-  return reduced;
+  return useMediaQuery("(prefers-reduced-motion: reduce)");
 }

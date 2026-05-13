@@ -1,26 +1,13 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import { MouseEvent, useEffect, useRef, useState } from "react";
+import { MouseEvent, useRef } from "react";
 import type { ServiceCard as ServiceCardType, ChartType } from "./data";
 import { cn } from "@/lib/cn";
+import { useMediaQuery } from "@/lib/use-media-query";
 
 function useHasFineHover(): boolean {
-  const [hasHover, setHasHover] = useState(false);
-
-  useEffect(() => {
-    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
-    setHasHover(query.matches);
-
-    const handleChange = (event: MediaQueryListEvent) => {
-      setHasHover(event.matches);
-    };
-
-    query.addEventListener("change", handleChange);
-    return () => query.removeEventListener("change", handleChange);
-  }, []);
-
-  return hasHover;
+  return useMediaQuery("(hover: hover) and (pointer: fine)");
 }
 
 function MiniChart({ type }: { type: ChartType }) {

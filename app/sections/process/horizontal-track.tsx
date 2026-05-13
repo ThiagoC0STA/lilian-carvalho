@@ -9,13 +9,6 @@ import { Step } from "./step";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const accentClasses = [
-  "text-white/10",
-  "text-white/15",
-  "text-white/20",
-  "text-white/25",
-];
-
 export function HorizontalTrack() {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -33,34 +26,43 @@ export function HorizontalTrack() {
       ).matches;
       if (reducedMotion) return;
 
-      const totalWidth = track.scrollWidth - window.innerWidth;
+      const mm = gsap.matchMedia();
 
-      const tween = gsap.to(track, {
-        x: -totalWidth,
-        ease: "none",
-        scrollTrigger: {
-          trigger: container,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          pin: true,
-          scrub: 0.8,
-          invalidateOnRefresh: true,
-        },
-      });
+      mm.add("(min-width: 768px) and (pointer: fine)", () => {
+        const totalWidth = track.scrollWidth - window.innerWidth;
 
-      gsap.to(progress, {
-        scaleX: 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: container,
-          start: "top top",
-          end: () => `+=${totalWidth}`,
-          scrub: 0.8,
-        },
+        const tween = gsap.to(track, {
+          x: -totalWidth,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container,
+            start: "top top",
+            end: () => `+=${totalWidth}`,
+            pin: true,
+            scrub: 0.8,
+            invalidateOnRefresh: true,
+          },
+        });
+
+        const progressTween = gsap.to(progress, {
+          scaleX: 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: container,
+            start: "top top",
+            end: () => `+=${totalWidth}`,
+            scrub: 0.8,
+          },
+        });
+
+        return () => {
+          tween.kill();
+          progressTween.kill();
+        };
       });
 
       return () => {
-        tween.kill();
+        mm.revert();
       };
     },
     { scope: containerRef },
@@ -68,8 +70,8 @@ export function HorizontalTrack() {
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex flex-col bg-background">
-        <div className="relative h-px w-full bg-white/5">
+      <div className="w-full overflow-x-auto bg-background pb-8 [scrollbar-width:none] md:sticky md:top-0 md:h-screen md:overflow-hidden md:pb-0 flex flex-col snap-x snap-mandatory md:snap-none">
+        <div className="relative hidden h-px w-full bg-white/5 md:block">
           <div
             ref={progressRef}
             className="absolute inset-y-0 left-0 h-px w-full origin-left scale-x-0 bg-gradient-to-r from-violet-600 via-amber-500 to-transparent"
@@ -79,13 +81,12 @@ export function HorizontalTrack() {
         <div className="flex-1 flex items-center">
           <div
             ref={trackRef}
-            className="flex items-center gap-0 will-change-transform"
+            className="flex items-center gap-4 px-4 md:gap-0 md:px-0 md:will-change-transform"
           >
-            {processSteps.map((step, i) => (
+            {processSteps.map((step) => (
               <Step
                 key={step.number}
                 step={step}
-                accentClass={accentClasses[i]}
               />
             ))}
             <div className="w-[20vw] shrink-0" aria-hidden="true" />
