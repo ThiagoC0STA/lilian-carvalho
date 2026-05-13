@@ -9,24 +9,67 @@ export function Cta() {
       id="contato"
       className="relative w-full min-h-[90vh] flex items-center justify-center overflow-hidden bg-neutral-950"
     >
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {/* Creative Aurora Background */}
-        <motion.div
-          animate={{ rotate: [0, 360], scale: [1, 1.3, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[20%] -left-[10%] w-[80vw] h-[80vw] sm:w-[60vw] sm:h-[60vw] rounded-full bg-violet-600/20 blur-[140px] mix-blend-screen"
-        />
-        <motion.div
-          animate={{ rotate: [360, 0], scale: [1, 1.4, 1] }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-[20%] -right-[10%] w-[80vw] h-[80vw] sm:w-[60vw] sm:h-[60vw] rounded-full bg-amber-500/15 blur-[140px] mix-blend-screen"
-        />
-        <motion.div
-          animate={{ scale: [1, 1.5, 1], x: [0, -100, 0], y: [0, 100, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-[30%] left-[30%] w-[60vw] h-[60vw] sm:w-[40vw] sm:h-[40vw] rounded-full bg-purple-600/20 blur-[140px] mix-blend-screen"
-        />
+      {/* Layer 1: fine dot grid drifting forward */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none will-change-[background-position]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(255,255,255,0.09) 1px, transparent 1.2px)",
+          backgroundSize: "44px 44px",
+        }}
+        animate={{ backgroundPosition: ["0px 0px", "44px 44px"] }}
+        transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Layer 2: bigger sparse dots drifting opposite direction for parallax depth */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none will-change-[background-position]"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle, rgba(255,255,255,0.05) 1.4px, transparent 1.6px)",
+          backgroundSize: "120px 120px",
+        }}
+        animate={{ backgroundPosition: ["0px 0px", "-120px 120px"] }}
+        transition={{ duration: 55, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Radar pulse rings expanding from center */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden="true">
+        {[0, 2, 4, 6].map((delay) => (
+          <motion.div
+            key={delay}
+            className="absolute h-[28vw] w-[28vw] sm:h-[20vw] sm:w-[20vw] rounded-full border border-white/15"
+            animate={{ scale: [0.2, 3.2], opacity: [0.35, 0] }}
+            transition={{
+              duration: 8,
+              delay,
+              repeat: Infinity,
+              ease: [0.16, 1, 0.3, 1],
+            }}
+          />
+        ))}
+        <div className="h-1.5 w-1.5 rounded-full bg-white/40 shadow-[0_0_24px_rgba(255,255,255,0.4)]" />
       </div>
+
+      {/* Vignette to anchor the content */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(ellipse at center, rgba(10,10,10,0) 0%, rgba(10,10,10,0.45) 50%, rgba(10,10,10,0.9) 85%, #0a0a0a 100%)",
+        }}
+      />
+
+      {/* Scan line drifting top → bottom */}
+      <motion.div
+        aria-hidden="true"
+        className="absolute inset-x-0 h-px bg-linear-to-r from-transparent via-white/12 to-transparent pointer-events-none"
+        animate={{ top: ["-2%", "102%"] }}
+        transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+      />
 
       <div className="relative mx-auto max-w-6xl px-6 z-10 w-full flex flex-col items-center text-center">
 
