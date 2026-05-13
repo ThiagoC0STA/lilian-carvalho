@@ -1,31 +1,13 @@
-"use client";
-
-import { motion, useScroll, useTransform } from "motion/react";
-import { useRef } from "react";
 import { RevealText } from "./reveal-text";
 
 export function Manifesto() {
-  const sectionRef = useRef<HTMLElement>(null);
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ["start end", "end start"],
-  });
-
-  const visualY = useTransform(scrollYProgress, [0, 1], [60, -60]);
-  const visualScale = useTransform(scrollYProgress, [0, 0.5, 1], [0.95, 1, 1.05]);
-
   return (
     <section
-      ref={sectionRef}
       id="manifesto"
       className="relative w-full bg-background py-16 sm:py-24"
     >
       <div className="mx-auto max-w-7xl px-6">
-        <div className="mb-16 sm:mb-24">
-
-
-        </div>
+        <div className="mb-16 sm:mb-24" />
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-16 lg:gap-24 items-start">
           <div className="space-y-8 max-w-2xl">
@@ -53,10 +35,7 @@ export function Manifesto() {
             />
           </div>
 
-          <motion.aside
-            style={{ y: visualY, scale: visualScale }}
-            className="hidden lg:block w-72 shrink-0"
-          >
+          <aside className="hidden lg:block w-72 shrink-0">
             <div className="relative aspect-[3/4] w-full overflow-hidden rounded-2xl border border-violet-500/20 bg-neutral-900/40 backdrop-blur-xl shadow-[0_0_80px_rgba(139,92,246,0.15)]">
               <div
                 className="absolute inset-0 opacity-40 mix-blend-screen"
@@ -65,8 +44,7 @@ export function Manifesto() {
                     "radial-gradient(circle at 50% 0%, rgba(255,255,255,0.1), transparent 70%)",
                 }}
               />
-              
-              {/* Animated Data Core Visualization */}
+
               <div className="absolute inset-0 flex items-center justify-center opacity-40">
                 <svg viewBox="0 0 100 100" className="w-48 h-48 animate-[spin_40s_linear_infinite]">
                   <circle cx="50" cy="50" r="40" fill="none" stroke="#8b5cf6" strokeWidth="0.5" strokeDasharray="2 4" />
@@ -82,7 +60,7 @@ export function Manifesto() {
                     Lilian Carvalho
                   </p>
                   <p className="font-sans text-[10px] uppercase tracking-[0.3em] text-neutral-400">
-                    Data & Performance
+                    Data &amp; Performance
                   </p>
                 </div>
                 <div className="space-y-1 text-right">
@@ -119,7 +97,7 @@ export function Manifesto() {
                 </span>
               </div>
             </div>
-          </motion.aside>
+          </aside>
         </div>
       </div>
     </section>

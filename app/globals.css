@@ -178,6 +178,110 @@ body {
   animation-play-state: running;
 }
 
+/* Word-by-word reveal — same trick as `.reveal-up-sm` but per-word with a
+   stagger driven by the `--i` CSS variable set on each <span>. Used by the
+   Manifesto `RevealText` component (was `motion.span` with per-word delay). */
+.reveal-word {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 0.7s var(--ease-out-expo),
+    transform 0.7s var(--ease-out-expo);
+  transition-delay: calc(var(--reveal-delay, 0ms) + var(--i, 0) * 30ms);
+  will-change: opacity, transform;
+}
+.reveal-words.is-visible .reveal-word {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* CTA section ambient — pure CSS keyframes (no Motion library, no rAF).
+   The previous version used `motion.div` with `animate={{ x:[0,-44] }}`
+   etc. which ran on the JS thread and stuttered on mobile when the user
+   was scrolling. Now everything is CSS @keyframes on the compositor. */
+
+@keyframes cta-drift-1 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(-44px, 44px); }
+}
+@keyframes cta-drift-2 {
+  from { transform: translate(0, 0); }
+  to { transform: translate(120px, -120px); }
+}
+@keyframes cta-radar {
+  0%   { transform: scale(0.2); opacity: 0.35; }
+  100% { transform: scale(3.2); opacity: 0; }
+}
+@keyframes cta-scanline {
+  from { transform: translateY(-2vh); }
+  to   { transform: translateY(102vh); }
+}
+
+.cta-bg-drift-1 {
+  animation: cta-drift-1 28s linear infinite;
+  will-change: transform;
+}
+.cta-bg-drift-2 {
+  animation: cta-drift-2 55s linear infinite;
+  will-change: transform;
+}
+.cta-radar-ring {
+  animation: cta-radar 8s var(--ease-out-expo) infinite;
+  animation-delay: var(--radar-delay, 0s);
+  will-change: transform, opacity;
+}
+.cta-scanline {
+  animation: cta-scanline 14s linear infinite;
+  will-change: transform;
+}
+
+/* Hero typography — entry animations (initial mount) and scroll-driven
+   parallax. Parallax is fed by CSS variables set by a single rAF-throttled
+   scroll listener (see hero/index.tsx). */
+
+@keyframes hero-copy-in {
+  from { opacity: 0; transform: translateY(40px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes hero-sub-in {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-copy-anim {
+  animation: hero-copy-in 1.2s var(--ease-out-expo) 0.2s both;
+}
+.hero-sub-anim {
+  animation: hero-sub-in 1s var(--ease-out-expo) 0.4s both;
+}
+.hero-copy-parallax {
+  opacity: var(--copy-opacity, 1);
+  transform: translateY(var(--copy-y, 0%)) scale(var(--copy-scale, 1));
+  will-change: opacity, transform;
+}
+
+/* Hero glassmorphism card — replaces `AnimatePresence` + `motion.div` with
+   class-toggled CSS transitions. Three logical states:
+     • default (never shown) → translated DOWN, invisible
+     • .is-shown             → at rest, visible
+     • .is-exiting           → translated UP, invisible (after being shown) */
+.hero-card {
+  opacity: 0;
+  transform: translateY(150px) scale(0.9);
+  transition:
+    opacity 0.8s var(--ease-out-expo),
+    transform 0.8s var(--ease-out-expo);
+  will-change: opacity, transform;
+}
+.hero-card.is-shown {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+.hero-card.is-exiting {
+  opacity: 0;
+  transform: translateY(-150px) scale(1.1);
+}
+
 /* 3D tilt — driven by JS-set CSS variables, all interpolation on GPU */
 .tilt-card {
   transform: perspective(1000px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));

@@ -1,7 +1,7 @@
 "use client";
 
-import { motion, useInView } from "motion/react";
-import { useRef } from "react";
+import { cn } from "@/lib/cn";
+import { useRevealOnScroll } from "@/lib/use-reveal-on-scroll";
 
 interface RevealTextProps {
   text: string;
@@ -10,37 +10,44 @@ interface RevealTextProps {
   staggerMs?: number;
 }
 
+// Word-by-word reveal driven entirely by CSS — the per-word stagger comes
+// from the `--i` CSS variable on each <span>, and the transition kicks in
+// when `.is-visible` is toggled on the wrapper by `useRevealOnScroll`.
 export function RevealText({
   text,
   className,
   delay = 0,
-  staggerMs = 30,
+  staggerMs: _staggerMs = 30,
 }: RevealTextProps) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-15% 0px" });
+  const [ref, revealed] = useRevealOnScroll<HTMLDivElement>({
+    rootMargin: "-15% 0px",
+  });
 
   const words = text.split(/\s+/);
+  const baseDelayMs = Math.round(delay * 1000);
 
   return (
-    <div ref={ref} className={className}>
+    <div
+      ref={ref}
+      className={cn("reveal-words", className, revealed && "is-visible")}
+      style={
+        {
+          "--reveal-delay": `${baseDelayMs}ms`,
+        } as React.CSSProperties
+      }
+    >
       {words.map((word, i) => (
         <span
           key={`${word}-${i}`}
           className="inline-block overflow-hidden align-baseline"
         >
-          <motion.span
-            className="inline-block"
-            initial={{ opacity: 0, y: 14 }}
-            animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
-            transition={{
-              duration: 0.7,
-              delay: delay + (i * staggerMs) / 1000,
-              ease: [0.16, 1, 0.3, 1],
-            }}
+          <span
+            className="reveal-word"
+            style={{ "--i": i } as React.CSSProperties}
           >
             {word}
-            {i < words.length - 1 ? "\u00A0" : ""}
-          </motion.span>
+            {i < words.length - 1 ? " " : ""}
+          </span>
         </span>
       ))}
     </div>
