@@ -1,15 +1,33 @@
 "use client";
 
 import { motion, useMotionValue, useSpring, useTransform } from "motion/react";
-import { MouseEvent, useRef } from "react";
+import { MouseEvent, useEffect, useRef, useState } from "react";
 import type { ServiceCard as ServiceCardType, ChartType } from "./data";
 import { cn } from "@/lib/cn";
+
+function useHasFineHover(): boolean {
+  const [hasHover, setHasHover] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia("(hover: hover) and (pointer: fine)");
+    setHasHover(query.matches);
+
+    const handleChange = (event: MediaQueryListEvent) => {
+      setHasHover(event.matches);
+    };
+
+    query.addEventListener("change", handleChange);
+    return () => query.removeEventListener("change", handleChange);
+  }, []);
+
+  return hasHover;
+}
 
 function MiniChart({ type }: { type: ChartType }) {
   if (type === "bar") {
     const bars = [30, 45, 25, 60, 80, 50, 95];
     return (
-      <div className="absolute right-4 sm:right-10 bottom-0 h-32 w-48 flex items-end justify-end gap-1.5 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-4 sm:right-10 bottom-0 h-32 w-48 flex items-end justify-end gap-1.5 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-bottom-right">
         {bars.map((h, i) => (
           <motion.div
             key={i}
@@ -25,7 +43,7 @@ function MiniChart({ type }: { type: ChartType }) {
 
   if (type === "line") {
     return (
-      <div className="absolute right-4 sm:right-10 bottom-8 h-24 w-40 opacity-10 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-4 sm:right-10 bottom-8 h-24 w-40 opacity-10 group-hover:opacity-50 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-bottom-right">
         <svg viewBox="0 0 100 50" className="w-full h-full overflow-visible">
           <motion.path
             d="M0,50 L20,40 L40,45 L60,20 L80,25 L100,5"
@@ -44,7 +62,7 @@ function MiniChart({ type }: { type: ChartType }) {
 
   if (type === "dashboard") {
     return (
-      <div className="absolute right-4 sm:right-10 bottom-6 h-24 w-32 grid grid-cols-2 grid-rows-2 gap-2 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-4 sm:right-10 bottom-6 h-24 w-32 grid grid-cols-2 grid-rows-2 gap-2 opacity-5 group-hover:opacity-20 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-bottom-right">
         <motion.div className="bg-white rounded-sm" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.1 }} />
         <motion.div className="bg-white rounded-sm" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.2 }} />
         <motion.div className="bg-white rounded-sm col-span-2" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ duration: 0.5, delay: 0.3 }} />
@@ -54,7 +72,7 @@ function MiniChart({ type }: { type: ChartType }) {
 
   if (type === "nodes") {
     return (
-      <div className="absolute right-6 sm:right-12 bottom-6 h-24 w-24 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-6 sm:right-12 bottom-6 h-24 w-24 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-bottom-right">
         <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
           <motion.circle cx="50" cy="50" r="10" className="fill-white" initial={{ scale: 0 }} whileInView={{ scale: 1 }} />
           <motion.circle cx="20" cy="20" r="6" className="fill-white" initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.2 }} />
@@ -70,7 +88,7 @@ function MiniChart({ type }: { type: ChartType }) {
 
   if (type === "wireframe") {
     return (
-      <div className="absolute right-4 sm:right-10 bottom-0 h-32 w-32 opacity-10 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-4 sm:right-10 bottom-0 h-32 w-32 opacity-10 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-bottom-right">
          <motion.div className="w-full h-8 border-2 border-white rounded-t-lg mb-2" initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} />
          <motion.div className="w-full h-12 border-2 border-white rounded-sm mb-2" initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} />
          <motion.div className="w-full h-16 border-2 border-white rounded-sm" initial={{ y: 50, opacity: 0 }} whileInView={{ y: 0, opacity: 1 }} transition={{ delay: 0.2 }} />
@@ -80,7 +98,7 @@ function MiniChart({ type }: { type: ChartType }) {
 
   if (type === "pulse") {
     return (
-      <div className="absolute right-10 sm:right-16 bottom-10 h-16 w-16 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none">
+      <div className="absolute right-10 sm:right-16 bottom-10 h-16 w-16 opacity-10 group-hover:opacity-40 transition-opacity duration-700 pointer-events-none scale-75 sm:scale-100 origin-center">
         <motion.div
           className="absolute inset-0 rounded-full border-2 border-white"
           animate={{ scale: [1, 2.5, 2.5], opacity: [1, 0, 0] }}
@@ -106,6 +124,7 @@ interface ServiceCardProps {
 
 export function ServiceCard({ card, index }: ServiceCardProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const hasHover = useHasFineHover();
 
   const mouseX = useMotionValue(0.5);
   const mouseY = useMotionValue(0.5);
@@ -120,6 +139,7 @@ export function ServiceCard({ card, index }: ServiceCardProps) {
   });
 
   const handleMouseMove = (event: MouseEvent<HTMLDivElement>) => {
+    if (!hasHover) return;
     const node = ref.current;
     if (!node) return;
     const rect = node.getBoundingClientRect();
@@ -132,6 +152,7 @@ export function ServiceCard({ card, index }: ServiceCardProps) {
   };
 
   const handleMouseLeave = () => {
+    if (!hasHover) return;
     mouseX.set(0.5);
     mouseY.set(0.5);
   };
@@ -149,23 +170,28 @@ export function ServiceCard({ card, index }: ServiceCardProps) {
         delay: index * 0.08,
         ease: [0.16, 1, 0.3, 1],
       }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{
-        rotateX,
-        rotateY,
-        transformPerspective: 1000,
-        transformStyle: "preserve-3d",
-      }}
+      onMouseMove={hasHover ? handleMouseMove : undefined}
+      onMouseLeave={hasHover ? handleMouseLeave : undefined}
+      style={
+        hasHover
+          ? {
+              rotateX,
+              rotateY,
+              transformPerspective: 1000,
+              transformStyle: "preserve-3d",
+            }
+          : undefined
+      }
       className={cn(
-        "group relative overflow-hidden rounded-xl border border-violet-500/10 bg-neutral-900/40 p-8 sm:p-10 h-full",
-        "transition-all duration-500 hover:border-violet-400/30 hover:bg-neutral-800/50 backdrop-blur-md shadow-[0_0_40px_rgba(139,92,246,0.05)] hover:shadow-[0_0_80px_rgba(139,92,246,0.15)]",
+        "group relative overflow-hidden rounded-xl border border-violet-500/10 bg-neutral-900/40 p-6 sm:p-10 h-full min-h-[300px]",
+        "transition-all duration-500 hover:border-violet-400/30 hover:bg-neutral-800/50 shadow-[0_0_40px_rgba(139,92,246,0.05)] hover:shadow-[0_0_80px_rgba(139,92,246,0.15)]",
+        "sm:backdrop-blur-md",
       )}
     >
 
 
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex items-start justify-between mb-16">
+        <div className="flex items-start justify-between mb-10 sm:mb-16">
           <span className="font-sans font-medium text-[10px] uppercase tracking-[0.3em] text-neutral-500">
             {card.number}
           </span>
@@ -173,11 +199,11 @@ export function ServiceCard({ card, index }: ServiceCardProps) {
         </div>
 
         <div className="mt-auto relative z-20">
-          <h3 className="font-sans font-bold tracking-tight text-3xl sm:text-4xl text-white leading-tight mb-4 group-hover:translate-x-1 transition-transform duration-500">
+          <h3 className="font-sans font-bold tracking-tight text-2xl sm:text-4xl text-white leading-tight mb-3 sm:mb-4 group-hover:translate-x-1 transition-transform duration-500">
             {card.title}
           </h3>
 
-          <p className="font-sans text-base text-neutral-400 font-light tracking-wide leading-relaxed max-w-[85%] group-hover:text-neutral-300 transition-colors duration-500">
+          <p className="font-sans text-sm sm:text-base text-neutral-400 font-light tracking-wide leading-relaxed max-w-[95%] sm:max-w-[85%] group-hover:text-neutral-300 transition-colors duration-500">
             {card.description}
           </p>
         </div>

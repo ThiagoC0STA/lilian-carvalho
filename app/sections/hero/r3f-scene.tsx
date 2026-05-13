@@ -139,7 +139,7 @@ export default function R3FScene({ scrollRef }: R3FSceneProps) {
       
       <CameraRig scrollRef={scrollRef} />
       
-      <EffectComposer disableNormalPass>
+      <EffectComposer>
         <Bloom 
           luminanceThreshold={0.2} 
           mipmapBlur 

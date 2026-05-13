@@ -103,31 +103,31 @@ export function Hero() {
               transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
               className="absolute inset-0 flex items-center justify-center z-40 px-6 pointer-events-none"
             >
-              <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/60 backdrop-blur-3xl p-10 sm:p-16 flex flex-col items-center text-center">
-                <h2 className="text-4xl sm:text-6xl font-serif font-bold text-white mb-8 tracking-tighter">
+              <div className="w-full max-w-5xl rounded-3xl border border-violet-500/20 bg-neutral-950/60 backdrop-blur-3xl p-6 sm:p-16 flex flex-col items-center text-center">
+                <h2 className="text-3xl sm:text-6xl font-serif font-bold text-white mb-6 sm:mb-8 tracking-tighter">
                   A ARTE DA <span className="text-violet-400 italic font-light">PERFORMANCE.</span>
                 </h2>
-                <p className="text-neutral-300 text-lg sm:text-xl font-sans font-light tracking-wide max-w-2xl leading-relaxed">
+                <p className="text-neutral-300 text-sm sm:text-xl font-sans font-light tracking-wide max-w-2xl leading-relaxed">
                   Não olho apenas para planilhas. Eu construo arquiteturas de dados que transformam tráfego em lucro líquido.
                 </p>
                 
-                <div className="w-full h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent my-10" />
+                <div className="w-full h-px bg-gradient-to-r from-transparent via-violet-500/40 to-transparent my-8 sm:my-10" />
                 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full font-sans text-sm font-medium uppercase tracking-widest text-neutral-400">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 w-full font-sans text-[10px] sm:text-sm font-medium uppercase tracking-widest text-neutral-400">
                   <div>
-                    <span className="block text-4xl text-white font-serif font-bold mb-2">ROI</span>
+                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">ROI</span>
                     Maximização
                   </div>
                   <div>
-                    <span className="block text-4xl text-white font-serif font-bold mb-2">LTV</span>
+                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">LTV</span>
                     Retenção
                   </div>
                   <div>
-                    <span className="block text-4xl text-white font-serif font-bold mb-2">CPA</span>
+                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CPA</span>
                     Otimização
                   </div>
                   <div>
-                    <span className="block text-4xl text-white font-serif font-bold mb-2">CRO</span>
+                    <span className="block text-2xl sm:text-4xl text-white font-serif font-bold mb-1 sm:mb-2">CRO</span>
                     Conversão
                   </div>
                 </div>
